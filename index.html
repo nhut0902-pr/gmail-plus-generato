@@ -9,14 +9,14 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#007bff">
     
+    <!-- CSS Files (Font Awesome & Style của bạn) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
     <div class="container">
         <div class="header-controls">
-            <!-- ADDED: Help Button -->
             <button id="helpBtn" class="icon-btn" title="Hướng dẫn"><i class="fas fa-question-circle"></i></button>
             <div class="theme-switcher">
                 <label for="themeToggle" class="theme-label">Chế độ Tối</label>
@@ -31,8 +31,7 @@
             <div class="form-group">
                 <label for="originalEmail">Gmail gốc</label>
                 <input type="email" id="originalEmail" placeholder="vidu@gmail.com" required>
-                <!-- ADDED: Smart Validation Message -->
-                <small class="error-message" id="emailError"></small>
+                <small class="error-message" id="originalEmailError"></small>
             </div>
             
             <div class="form-group">
@@ -47,17 +46,39 @@
                 <small class="live-preview">Xem trước: <span id="livePreview">...</span></small>
             </div>
 
-            <fieldset class="options-group"><!-- ... (Không thay đổi) ... --></fieldset>
+            <fieldset class="options-group">
+                <legend>Tùy chọn nâng cao</legend>
+                <div class="options-grid">
+                    <div class="option-item">
+                        <label>Dấu phân cách:</label>
+                        <div class="radio-group">
+                            <input type="radio" id="sepPlus" name="separator" value="+" checked>
+                            <label for="sepPlus">+</label>
+                            <input type="radio" id="sepDot" name="separator" value=".">
+                            <label for="sepDot">.</label>
+                        </div>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="randomSuffix">
+                        <label for="randomSuffix">Hậu tố ngẫu nhiên</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="includeOriginal">
+                        <label for="includeOriginal">Thêm email gốc</label>
+                    </div>
+                </div>
+            </fieldset>
 
             <button type="submit" class="btn btn-primary">Tạo Email</button>
             <button type="button" id="clearBtn" class="btn btn-secondary">Xóa & Đặt lại</button>
         </form>
 
-        <div class="progress-bar-container" id="progressContainer" style="display: none;"><!-- ... --></div>
+        <div class="progress-bar-container" id="progressContainer" style="display: none;">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
 
         <div class="results" id="resultsSection" style="display: none;">
             <h2>Kết quả (<span id="resultCount">0</span>)</h2>
-            <!-- MODIFIED: Changed textarea to a div for interactive items -->
             <div id="resultArea" class="result-list"></div>
             <div class="action-buttons">
                 <button id="copyAllBtn" class="btn btn-success">Sao chép tất cả</button>
@@ -66,10 +87,10 @@
         </div>
     </div>
 
-    <!-- ADDED: Modal for "How it works" -->
+    <!-- Modal cho Hướng dẫn -->
     <div id="helpModal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">×</span>
+            <span class="close-btn" id="closeHelpModal">×</span>
             <h2>Nó hoạt động thế nào?</h2>
             <p>Công cụ này tận dụng một tính năng ẩn của Gmail:</p>
             <ul>
@@ -80,10 +101,10 @@
         </div>
     </div>
 
-    <!-- ADDED: Modal for QR Code Display -->
+    <!-- Modal cho Mã QR -->
     <div id="qrModal" class="modal">
         <div class="modal-content qr-modal-content">
-            <span class="close-btn">×</span>
+            <span class="close-btn" id="closeQrModal">×</span>
             <h3>Mã QR cho Email</h3>
             <div id="qrCodeContainer"></div>
             <p id="qrEmailValue"></p>
@@ -93,8 +114,10 @@
     <div id="toastContainer"></div>
     <footer><p>Powered by <a href="https://github.com/nhut0902" target="_blank" rel="noopener noreferrer">Nhut0902pr</a></p></footer>
     
-    <!-- ADDED: QR Code Library -->
+    <!-- QUAN TRỌNG: Thứ tự tải script đúng -->
+    <!-- 1. Tải thư viện QR Code TRƯỚC -->
     <script src="qrcode.min.js"></script>
+    <!-- 2. Tải script chính của bạn SAU CÙNG -->
     <script src="script.js"></script>
 </body>
 </html>
