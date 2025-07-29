@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trình Tạo Email Nâng Cao</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> <!-- Optional: For icons -->
+</head>
+<body>
+
+    <div class="container">
+        <!-- Theme Switcher -->
+        <div class="theme-switcher">
+            <label for="themeToggle" class="theme-label">Chế độ Tối</label>
+            <input type="checkbox" id="themeToggle" class="theme-toggle">
+        </div>
+
+        <h1>Trình Tạo Email Nâng Cao</h1>
+        <p class="description">
+            Tạo nhanh danh sách email biến thể từ Gmail gốc với nhiều tùy chọn mạnh mẽ.
+        </p>
+
+        <!-- Form nhập liệu -->
+        <form id="emailGeneratorForm">
+            <div class="form-group">
+                <label for="originalEmail">Gmail gốc</label>
+                <input type="email" id="originalEmail" placeholder="vidu@gmail.com" value="nhut0902@gmail.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="quantity">Số lượng cần tạo</label>
+                <input type="number" id="quantity" value="10" min="1" max="5000" required>
+            </div>
+
+            <div class="form-group">
+                <label for="prefix">Tiền tố / Từ khóa</label>
+                <input type="text" id="prefix" placeholder="shop, test, dangky...">
+                <small class="live-preview">Xem trước: <span id="livePreview"></span></small>
+            </div>
+
+            <!-- New Features: Options -->
+            <fieldset class="options-group">
+                <legend>Tùy chọn nâng cao</legend>
+                <div class="options-grid">
+                    <div class="option-item">
+                        <label>Dấu phân cách:</label>
+                        <div class="radio-group">
+                            <input type="radio" id="sepPlus" name="separator" value="+" checked>
+                            <label for="sepPlus">+</label>
+                            <input type="radio" id="sepDot" name="separator" value=".">
+                            <label for="sepDot">.</label>
+                        </div>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="randomSuffix">
+                        <label for="randomSuffix">Hậu tố ngẫu nhiên</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="includeOriginal">
+                        <label for="includeOriginal">Thêm email gốc</label>
+                    </div>
+                </div>
+            </fieldset>
+
+            <button type="submit" class="btn btn-primary">Tạo Email</button>
+            <button type="button" id="clearBtn" class="btn btn-secondary">Xóa & Đặt lại</button>
+        </form>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-container" id="progressContainer" style="display: none;">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <!-- Khu vực hiển thị kết quả -->
+        <div class="results" id="resultsSection" style="display: none;">
+            <h2>Kết quả (<span id="resultCount">0</span>)</h2>
+            <textarea id="resultArea" readonly></textarea>
+            <div class="action-buttons">
+                <button id="copyBtn" class="btn btn-success">Sao chép tất cả</button>
+                <button id="exportBtn" class="btn btn-info">Xuất ra file .txt</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
