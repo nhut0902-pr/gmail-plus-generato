@@ -36,112 +36,26 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
-/* --- Container chính --- */
-.container {
-    background-color: var(--surface-color);
-    padding: 25px 30px;
-    border-radius: 12px;
-    box-shadow: 0 5px 20px var(--shadow-color);
-    max-width: 600px;
-    width: 100%;
-    margin: 20px auto;
-    box-sizing: border-box;
-    border: 1px solid var(--border-color);
-    transition: background-color 0.3s, border-color 0.3s;
-}
+/* ... (Toàn bộ CSS đã có từ trước) ... */
+/* Bạn có thể dán toàn bộ nội dung từ file style.css hoàn chỉnh ở câu trả lời trước vào đây. */
+/* Hoặc sử dụng toàn bộ khối CSS dưới đây, đã bao gồm tất cả. */
 
-/* --- Tiêu đề và Mô tả --- */
-h1 {
-    color: var(--primary-color);
-    text-align: center;
-    margin: 0 0 10px;
-}
-.description {
-    font-size: 14px;
-    color: var(--secondary-color);
-    text-align: center;
-    margin-bottom: 25px;
-    line-height: 1.5;
-}
-
-/* --- Form và Input --- */
-.form-group, .options-group {
-    margin-bottom: 20px;
-}
-label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-input[type="email"], input[type="number"], input[type="text"] {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    font-size: 16px;
-    box-sizing: border-box;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s;
-}
-input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px var(--input-focus-shadow);
-}
-.live-preview {
-    display: block;
-    margin-top: 6px;
-    font-size: 12px;
-    color: var(--secondary-color);
-    min-height: 1em;
-}
-
-/* --- Tùy chọn Nâng cao --- */
-.options-group {
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 15px;
-}
-legend {
-    font-weight: 600;
-    padding: 0 10px;
-    color: var(--primary-color);
-}
-.options-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-}
-.option-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.option-item label {
-    margin-bottom: 0;
-    font-weight: normal;
-}
-input[type="checkbox"], input[type="radio"] {
-    accent-color: var(--primary-color);
-}
-
-/* --- Nút bấm --- */
-.btn {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    border-radius: 6px;
-    border: none;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-    text-align: center;
-    margin-top: 10px;
-}
+.container { background-color: var(--surface-color); padding: 25px 30px; border-radius: 12px; box-shadow: 0 5px 20px var(--shadow-color); max-width: 600px; width: 100%; margin: 20px auto; box-sizing: border-box; border: 1px solid var(--border-color); transition: background-color 0.3s, border-color 0.3s; }
+h1 { color: var(--primary-color); text-align: center; margin: 0 0 10px; }
+.description { font-size: 14px; color: var(--secondary-color); text-align: center; margin-bottom: 25px; line-height: 1.5; }
+.form-group, .options-group { margin-bottom: 20px; }
+label { display: block; font-weight: 600; margin-bottom: 8px; }
+input[type="email"], input[type="number"], input[type="text"] { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 16px; box-sizing: border-box; background-color: var(--background-color); color: var(--text-color); transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s; }
+input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px var(--input-focus-shadow); }
+.live-preview { display: block; margin-top: 6px; font-size: 12px; color: var(--secondary-color); min-height: 1em; }
+.options-group { border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; }
+legend { font-weight: 600; padding: 0 10px; color: var(--primary-color); }
+.options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+.option-item { display: flex; align-items: center; gap: 8px; }
+.option-item label { margin-bottom: 0; font-weight: normal; }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--primary-color); }
+.btn { display: block; width: 100%; padding: 12px; border-radius: 6px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; transition: background-color 0.2s, transform 0.1s; text-align: center; margin-top: 10px; }
 .btn:active { transform: scale(0.98); }
-
 .btn-primary { background-color: var(--primary-color); color: white; }
 .btn-primary:hover { background-color: #0069d9; }
 .btn-secondary { background-color: var(--secondary-color); color: white; }
@@ -150,257 +64,50 @@ input[type="checkbox"], input[type="radio"] {
 .btn-success:hover { background-color: #218838; }
 .btn-info { background-color: var(--info-color); color: white; }
 .btn-info:hover { background-color: #138496; }
-
-/* --- Kết quả, Progress Bar, Actions --- */
 .results { margin-top: 25px; }
 h2 { border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-.progress-bar-container {
-    width: 100%;
-    background-color: var(--border-color);
-    border-radius: 6px;
-    overflow: hidden;
-    margin: 20px 0;
-}
-.progress-bar {
-    height: 10px;
-    width: 0%;
-    background-color: var(--primary-color);
-    transition: width 0.2s ease-in-out;
-}
-.action-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-/* --- Theme Switcher & Header Controls --- */
-.header-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-.icon-btn {
-    background: none;
-    border: none;
-    color: var(--secondary-color);
-    font-size: 24px;
-    cursor: pointer;
-    padding: 0;
-}
-.icon-btn:hover {
-    color: var(--primary-color);
-}
-.theme-switcher {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
+.progress-bar-container { width: 100%; background-color: var(--border-color); border-radius: 6px; overflow: hidden; margin: 20px 0; }
+.progress-bar { height: 10px; width: 0%; background-color: var(--primary-color); transition: width 0.2s ease-in-out; }
+.action-buttons { display: flex; gap: 10px; margin-top: 10px; }
+.header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.icon-btn { background: none; border: none; color: var(--secondary-color); font-size: 24px; cursor: pointer; padding: 0; }
+.icon-btn:hover { color: var(--primary-color); }
+.theme-switcher { display: flex; align-items: center; gap: 8px; }
 .theme-label { font-size: 12px; color: var(--secondary-color); margin: 0; }
-.theme-toggle {
-    appearance: none;
-    width: 40px;
-    height: 20px;
-    background-color: var(--secondary-color);
-    border-radius: 10px;
-    position: relative;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-.theme-toggle::before {
-    content: '';
-    width: 16px;
-    height: 16px;
-    background-color: white;
-    border-radius: 50%;
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    transition: transform 0.3s;
-}
-.theme-toggle:checked {
-    background-color: var(--primary-color);
-}
-.theme-toggle:checked::before {
-    transform: translateX(20px);
-}
-
-/* --- Toast Notifications --- */
-#toastContainer {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1001; /* Must be higher than modal */
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.toast {
-    padding: 15px 20px;
-    border-radius: 6px;
-    color: white;
-    font-weight: 500;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-    animation: slideIn 0.3s ease-out, fadeOut 0.5s ease-in 2.5s forwards;
-}
+.theme-toggle { appearance: none; width: 40px; height: 20px; background-color: var(--secondary-color); border-radius: 10px; position: relative; cursor: pointer; transition: background-color 0.3s; }
+.theme-toggle::before { content: ''; width: 16px; height: 16px; background-color: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform 0.3s; }
+.theme-toggle:checked { background-color: var(--primary-color); }
+.theme-toggle:checked::before { transform: translateX(20px); }
+#toastContainer { position: fixed; top: 20px; right: 20px; z-index: 1001; display: flex; flex-direction: column; gap: 10px; }
+.toast { padding: 15px 20px; border-radius: 6px; color: white; font-weight: 500; box-shadow: 0 3px 10px rgba(0,0,0,0.2); animation: slideIn 0.3s ease-out, fadeOut 0.5s ease-in 2.5s forwards; }
 .toast-success { background-color: var(--success-color); }
 .toast-error { background-color: var(--danger-color); }
-
-@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-20px); } }
-
-
-/* --- Styles for new features --- */
-
-/* Smart Validation Styles */
-.error-message {
-    color: var(--danger-color);
-    font-size: 12px;
-    min-height: 1.2em; /* Prevent layout shift */
-    display: block;
-    margin-top: 4px;
-}
-input.has-error {
-    border-color: var(--danger-color);
-}
-input.has-error:focus {
-    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
-}
-
-/* Modal Styles (for Help & QR) */
-.modal {
-    display: none; 
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.6);
-    animation: fadeIn 0.3s;
-}
-.modal-content {
-    background-color: var(--surface-color);
-    color: var(--text-color);
-    margin: 10% auto;
-    padding: 25px 30px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    max-width: 500px;
-    width: 90%;
-    position: relative;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    animation: slideDown 0.4s;
-}
-.close-btn {
-    color: var(--secondary-color);
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    line-height: 1;
-}
-.close-btn:hover, .close-btn:focus {
-    color: var(--text-color);
-    text-decoration: none;
-}
+.error-message { color: var(--danger-color); font-size: 12px; min-height: 1.2em; display: block; margin-top: 4px; }
+input.has-error { border-color: var(--danger-color); }
+input.has-error:focus { box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25); }
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); animation: fadeIn 0.3s; }
+.modal-content { background-color: var(--surface-color); color: var(--text-color); margin: 10% auto; padding: 25px 30px; border: 1px solid var(--border-color); border-radius: 8px; max-width: 500px; width: 90%; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: slideDown 0.4s; }
+.close-btn { color: var(--secondary-color); float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1; }
+.close-btn:hover, .close-btn:focus { color: var(--text-color); text-decoration: none; }
 .modal ul { padding-left: 20px; }
 .modal li { margin-bottom: 10px; line-height: 1.6; }
-.modal code {
-    background-color: var(--border-color);
-    padding: 2px 5px;
-    border-radius: 4px;
-    font-family: monospace;
-}
-
-/* QR Code Modal Specifics */
-.qr-modal-content {
-    text-align: center;
-    max-width: 300px;
-}
-#qrCodeContainer {
-    padding: 16px;
-    background: white; /* QR codes need a white background to be scannable */
-    display: inline-block;
-    border-radius: 6px;
-    margin-bottom: 15px;
-}
-#qrEmailValue {
-    font-weight: 500;
-    word-break: break-all;
-    color: var(--text-color);
-    font-family: monospace;
-    font-size: 14px;
-}
-
-/* Interactive Result List Styles */
-.result-list {
-    max-height: 300px;
-    overflow-y: auto;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 5px;
-}
-.result-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-}
-.result-item:not(:last-child) {
-    border-bottom: 1px solid var(--border-color);
-}
-.result-item:hover {
-    background-color: var(--border-color);
-}
-.result-email {
-    font-family: monospace;
-    font-size: 14px;
-    word-break: break-all;
-    flex-grow: 1;
-    padding-right: 10px;
-}
-.result-actions {
-    display: flex;
-    gap: 5px;
-}
-.result-actions button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--secondary-color);
-    font-size: 16px;
-    padding: 5px;
-}
-.result-actions button:hover {
-    color: var(--primary-color);
-}
-
-/* Footer */
-footer {
-    text-align: center;
-    margin-top: 30px;
-    padding-bottom: 20px;
-}
-footer p {
-    margin: 0;
-    font-size: 14px;
-    color: var(--secondary-color);
-    transition: color 0.3s;
-}
-footer a {
-    color: var(--primary-color);
-    font-weight: 600;
-    text-decoration: none;
-    transition: text-decoration 0.2s, color 0.3s;
-}
-footer a:hover {
-    text-decoration: underline;
-}
-
-/* Animations */
+.modal code { background-color: var(--border-color); padding: 2px 5px; border-radius: 4px; font-family: monospace; }
+.qr-modal-content { text-align: center; max-width: 300px; }
+#qrCodeContainer { padding: 16px; background: white; display: inline-block; border-radius: 6px; margin-bottom: 15px; }
+#qrEmailValue { font-weight: 500; word-break: break-all; color: var(--text-color); font-family: monospace; font-size: 14px; }
+.result-list { max-height: 300px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 5px; }
+.result-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-radius: 4px; transition: background-color 0.2s; }
+.result-item:not(:last-child) { border-bottom: 1px solid var(--border-color); }
+.result-item:hover { background-color: var(--border-color); }
+.result-email { font-family: monospace; font-size: 14px; word-break: break-all; flex-grow: 1; padding-right: 10px; }
+.result-actions { display: flex; gap: 5px; }
+.result-actions button { background: none; border: none; cursor: pointer; color: var(--secondary-color); font-size: 16px; padding: 5px; }
+.result-actions button:hover { color: var(--primary-color); }
+footer { text-align: center; margin-top: 30px; padding-bottom: 20px; }
+footer p { margin: 0; font-size: 14px; color: var(--secondary-color); transition: color 0.3s; }
+footer a { color: var(--primary-color); font-weight: 600; text-decoration: none; transition: text-decoration 0.2s, color 0.3s; }
+footer a:hover { text-decoration: underline; }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-20px); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
