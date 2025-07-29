@@ -73,7 +73,7 @@ label {
     font-weight: 600;
     margin-bottom: 8px;
 }
-input[type="email"], input[type="number"], input[type="text"], textarea {
+input[type="email"], input[type="number"], input[type="text"] {
     width: 100%;
     padding: 12px;
     border: 1px solid var(--border-color);
@@ -84,7 +84,7 @@ input[type="email"], input[type="number"], input[type="text"], textarea {
     color: var(--text-color);
     transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s;
 }
-input:focus, textarea:focus {
+input:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px var(--input-focus-shadow);
@@ -154,7 +154,6 @@ input[type="checkbox"], input[type="radio"] {
 /* --- Kết quả, Progress Bar, Actions --- */
 .results { margin-top: 25px; }
 h2 { border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-textarea { height: 200px; font-family: "Courier New", Courier, monospace; resize: vertical; }
 .progress-bar-container {
     width: 100%;
     background-color: var(--border-color);
@@ -174,11 +173,25 @@ textarea { height: 200px; font-family: "Courier New", Courier, monospace; resize
     margin-top: 10px;
 }
 
-/* --- Theme Switcher --- */
+/* --- Theme Switcher & Header Controls --- */
+.header-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--secondary-color);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+}
+.icon-btn:hover {
+    color: var(--primary-color);
+}
 .theme-switcher {
-    position: absolute;
-    top: 20px;
-    right: 20px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -217,7 +230,7 @@ textarea { height: 200px; font-family: "Courier New", Courier, monospace; resize
     position: fixed;
     top: 20px;
     right: 20px;
-    z-index: 1000;
+    z-index: 1001; /* Must be higher than modal */
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -232,39 +245,162 @@ textarea { height: 200px; font-family: "Courier New", Courier, monospace; resize
 }
 .toast-success { background-color: var(--success-color); }
 .toast-error { background-color: var(--danger-color); }
+
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-20px); } }
-/* --- ... (Toàn bộ CSS hiện có không đổi) ... --- */
 
 
-/* --- Toast Notifications --- */
-/* ... (Phần toast không đổi) ... */
-@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-20px); } }
+/* --- Styles for new features --- */
 
-
-/*  PHẦN MỚI: STYLING CHO FOOTER  */
-/*----------------------------------*/
-footer {
-    text-align: center;
-    margin-top: 30px; /* Tạo khoảng cách với container ở trên */
-    padding-bottom: 20px; /* Tạo khoảng cách với mép dưới màn hình */
+/* Smart Validation Styles */
+.error-message {
+    color: var(--danger-color);
+    font-size: 12px;
+    min-height: 1.2em; /* Prevent layout shift */
+    display: block;
+    margin-top: 4px;
+}
+input.has-error {
+    border-color: var(--danger-color);
+}
+input.has-error:focus {
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
 }
 
+/* Modal Styles (for Help & QR) */
+.modal {
+    display: none; 
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    animation: fadeIn 0.3s;
+}
+.modal-content {
+    background-color: var(--surface-color);
+    color: var(--text-color);
+    margin: 10% auto;
+    padding: 25px 30px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    animation: slideDown 0.4s;
+}
+.close-btn {
+    color: var(--secondary-color);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+.close-btn:hover, .close-btn:focus {
+    color: var(--text-color);
+    text-decoration: none;
+}
+.modal ul { padding-left: 20px; }
+.modal li { margin-bottom: 10px; line-height: 1.6; }
+.modal code {
+    background-color: var(--border-color);
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+/* QR Code Modal Specifics */
+.qr-modal-content {
+    text-align: center;
+    max-width: 300px;
+}
+#qrCodeContainer {
+    padding: 16px;
+    background: white; /* QR codes need a white background to be scannable */
+    display: inline-block;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+#qrEmailValue {
+    font-weight: 500;
+    word-break: break-all;
+    color: var(--text-color);
+    font-family: monospace;
+    font-size: 14px;
+}
+
+/* Interactive Result List Styles */
+.result-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 5px;
+}
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+.result-item:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+}
+.result-item:hover {
+    background-color: var(--border-color);
+}
+.result-email {
+    font-family: monospace;
+    font-size: 14px;
+    word-break: break-all;
+    flex-grow: 1;
+    padding-right: 10px;
+}
+.result-actions {
+    display: flex;
+    gap: 5px;
+}
+.result-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--secondary-color);
+    font-size: 16px;
+    padding: 5px;
+}
+.result-actions button:hover {
+    color: var(--primary-color);
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-bottom: 20px;
+}
 footer p {
     margin: 0;
     font-size: 14px;
-    color: var(--secondary-color); /* Sử dụng biến màu phụ, tự động đổi theo theme */
+    color: var(--secondary-color);
     transition: color 0.3s;
 }
-
 footer a {
-    color: var(--primary-color); /* Sử dụng biến màu chính, tự động đổi theo theme */
+    color: var(--primary-color);
     font-weight: 600;
     text-decoration: none;
     transition: text-decoration 0.2s, color 0.3s;
 }
-
 footer a:hover {
     text-decoration: underline;
 }
-/*  KẾT THÚC PHẦN MỚI  */
+
+/* Animations */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
