@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Results
     const resultsSection = document.getElementById('resultsSection');
-    const resultArea = document.getElementById('resultArea'); // This is now a DIV
+    const resultArea = document.getElementById('resultArea');
     const resultCount = document.getElementById('resultCount');
     const copyAllBtn = document.getElementById('copyAllBtn');
     const clearBtn = document.getElementById('clearBtn');
@@ -23,35 +23,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // Theme
     const themeToggle = document.getElementById('themeToggle');
 
-    // NEW FEATURE: Help Modal
+    // Modals
     const helpBtn = document.getElementById('helpBtn');
     const helpModal = document.getElementById('helpModal');
-
-    // NEW FEATURE: QR Code Modal
+    const closeHelpModal = document.getElementById('closeHelpModal');
     const qrModal = document.getElementById('qrModal');
     const qrCodeContainer = document.getElementById('qrCodeContainer');
     const qrEmailValue = document.getElementById('qrEmailValue');
+    const closeQrModal = document.getElementById('closeQrModal');
 
     // --- Utility Functions ---
-    function showToast(message, type = 'success') {
+    const showToast = (message, type = 'success') => {
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
         toast.textContent = message;
         toastContainer.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
-    }
+    };
 
-    function generateRandomString(length = 5) {
+    const generateRandomString = (length = 5) => {
         const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
         let result = '';
         for (let i = 0; i < length; i++) {
             result += chars.charAt(Math.floor(Math.random() * chars.length));
         }
         return result;
-    }
+    };
 
-    // --- FEATURE 1: USER SETTINGS PERSISTENCE ---
-    function saveSettings() {
+    // --- FEATURE: USER SETTINGS PERSISTENCE ---
+    const saveSettings = () => {
         const settings = {
             email: originalEmailInput.value,
             quantity: quantityInput.value,
@@ -61,110 +61,81 @@ document.addEventListener('DOMContentLoaded', () => {
             includeOriginal: document.getElementById('includeOriginal').checked,
         };
         localStorage.setItem('emailGeneratorSettings', JSON.stringify(settings));
-    }
+    };
 
-    function loadSettings() {
+    const loadSettings = () => {
         const settings = JSON.parse(localStorage.getItem('emailGeneratorSettings'));
         if (settings) {
-            originalEmailInput.value = settings.email || 'nhut0902@gmail.com';
+            originalEmailInput.value = settings.email || '';
             quantityInput.value = settings.quantity || 10;
             prefixInput.value = settings.prefix || '';
             document.querySelector(`input[name="separator"][value="${settings.separator || '+'}"]`).checked = true;
             document.getElementById('randomSuffix').checked = settings.random || false;
             document.getElementById('includeOriginal').checked = settings.includeOriginal || false;
         }
-    }
+    };
 
-    // --- FEATURE 2: SMARTER FORM VALIDATION ---
-    function showError(inputId, message) {
+    // --- FEATURE: SMARTER FORM VALIDATION ---
+    const showError = (inputId, message) => {
         const input = document.getElementById(inputId);
         const errorField = document.getElementById(`${inputId}Error`);
-        input.classList.add('has-error');
-        errorField.textContent = message;
-    }
+        if(input && errorField) {
+            input.classList.add('has-error');
+            errorField.textContent = message;
+        }
+    };
 
-    function clearErrors() {
-        const errorMessages = document.querySelectorAll('.error-message');
-        errorMessages.forEach(msg => msg.textContent = '');
-        const errorInputs = document.querySelectorAll('.has-error');
-        errorInputs.forEach(input => input.classList.remove('has-error'));
-    }
+    const clearErrors = () => {
+        document.querySelectorAll('.error-message').forEach(msg => msg.textContent = '');
+        document.querySelectorAll('.has-error').forEach(input => input.classList.remove('has-error'));
+    };
 
-    function validateForm() {
+    const validateForm = () => {
         clearErrors();
         let isValid = true;
-        const email = originalEmailInput.value.trim();
-        const quantity = quantityInput.value;
-
-        if (!email) {
+        if (!originalEmailInput.value.trim()) {
             showError('originalEmail', 'Vui lòng nhập địa chỉ email.');
             isValid = false;
-        } else if (!email.includes('@gmail.com')) {
-            showError('originalEmail', 'Chỉ hỗ trợ địa chỉ @gmail.com.');
+        } else if (!originalEmailInput.value.includes('@gmail.com')) {
+            showError('originalEmail', 'Hiện chỉ hỗ trợ địa chỉ @gmail.com.');
             isValid = false;
         }
-
-        if (!quantity) {
+        if (!quantityInput.value) {
             showError('quantity', 'Vui lòng nhập số lượng.');
             isValid = false;
-        } else if (parseInt(quantity) < 1) {
+        } else if (parseInt(quantityInput.value) < 1) {
             showError('quantity', 'Số lượng phải lớn hơn 0.');
             isValid = false;
         }
         return isValid;
-    }
+    };
     
-    // --- Live Preview & Main Logic ---
-    function updateLivePreview() { /* ... (no changes) ... */ }
-
-    // MODIFIED: Display results in the new DIV structure
-    function displayResults(emails) {
-        resultArea.innerHTML = ''; // Clear previous results
+    // --- Main Logic ---
+    const displayResults = (emails) => {
+        resultArea.innerHTML = '';
         if (emails.length === 0) return;
 
         emails.forEach(email => {
             const item = document.createElement('div');
             item.className = 'result-item';
-
-            const emailSpan = document.createElement('span');
-            emailSpan.className = 'result-email';
-            emailSpan.textContent = email;
-
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'result-actions';
-
-            // Copy button for single email
-            const copyBtn = document.createElement('button');
-            copyBtn.title = 'Sao chép email này';
-            copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
-            copyBtn.onclick = () => {
-                navigator.clipboard.writeText(email).then(() => showToast(`Đã sao chép: ${email}`));
-            };
-
-            // QR Code button for single email
-            const qrBtn = document.createElement('button');
-            qrBtn.title = 'Hiển thị mã QR';
-            qrBtn.innerHTML = '<i class="fas fa-qrcode"></i>';
-            qrBtn.onclick = () => showQrCode(email);
-
-            actionsDiv.appendChild(copyBtn);
-            actionsDiv.appendChild(qrBtn);
-            item.appendChild(emailSpan);
-            item.appendChild(actionsDiv);
+            item.innerHTML = `
+                <span class="result-email">${email}</span>
+                <div class="result-actions">
+                    <button class="copy-single-btn" title="Sao chép email này"><i class="fas fa-copy"></i></button>
+                    <button class="qr-single-btn" title="Hiển thị mã QR"><i class="fas fa-qrcode"></i></button>
+                </div>`;
             resultArea.appendChild(item);
         });
-    }
+    };
 
-    function handleGenerate(e) {
+    const handleGenerate = (e) => {
         e.preventDefault();
         if (!validateForm()) {
             showToast('Vui lòng kiểm tra lại các lỗi.', 'error');
             return;
         }
-
-        saveSettings(); // Save settings on successful generation
+        saveSettings();
         
-        // ... (generation logic is the same)
         const originalEmail = originalEmailInput.value.trim();
         const quantity = parseInt(quantityInput.value, 10);
         const prefix = prefixInput.value.trim();
@@ -172,143 +143,133 @@ document.addEventListener('DOMContentLoaded', () => {
         const useRandom = document.getElementById('randomSuffix').checked;
         const includeOriginal = document.getElementById('includeOriginal').checked;
 
-        const [username, domain] = originalEmail.split('@');
+        const [username] = originalEmail.split('@');
         const cleanUsername = username.split('+')[0];
         const generatedEmails = [];
-        progressContainer.style.display = 'block';
         
         for (let i = 1; i <= quantity; i++) {
             let alias = useRandom ? (prefix ? `${prefix}_${generateRandomString()}` : generateRandomString()) : (prefix ? `${prefix}${i}` : `${i}`);
-            generatedEmails.push(`${cleanUsername}${separator}${alias}@${domain}`);
-            progressBar.style.width = `${(i / quantity) * 100}%`;
+            generatedEmails.push(`${cleanUsername}${separator}${alias}@gmail.com`);
         }
         
-        if (includeOriginal) {
-            generatedEmails.unshift(originalEmail);
-        }
-
-        displayResults(generatedEmails); // Use new display function
+        if (includeOriginal) generatedEmails.unshift(originalEmail);
+        
+        displayResults(generatedEmails);
         resultCount.textContent = generatedEmails.length;
         resultsSection.style.display = 'block';
         showToast(`Đã tạo thành công ${generatedEmails.length} email!`);
-        
-        setTimeout(() => {
-            progressContainer.style.display = 'none';
-            progressBar.style.width = '0%';
-        }, 1000);
-    }
+    };
     
-    function getAllEmailsFromResults() {
-        const emailElements = resultArea.querySelectorAll('.result-email');
-        return Array.from(emailElements).map(el => el.textContent).join('\n');
-    }
+    const getAllEmailsFromResults = () => {
+        return Array.from(resultArea.querySelectorAll('.result-email')).map(el => el.textContent).join('\n');
+    };
 
-    // Modified copy all logic
-    function handleCopyAll() {
+    const handleCopyAll = () => {
         const allEmailsText = getAllEmailsFromResults();
         if (!allEmailsText) {
             showToast('Không có gì để sao chép!', 'error');
             return;
         }
-        navigator.clipboard.writeText(allEmailsText).then(() => {
-            showToast('Đã sao chép tất cả email!');
-        });
-    }
+        navigator.clipboard.writeText(allEmailsText).then(() => showToast('Đã sao chép tất cả email!'));
+    };
     
-    function handleExport() {
+    const handleExport = () => {
         const allEmailsText = getAllEmailsFromResults();
         if (!allEmailsText) {
-            showToast('Không có gì để xuất!', 'error');
-            return;
+            showToast('Không có gì để xuất!', 'error'); return;
         }
-        // ... (export logic is the same)
-        const blob = new Blob([allEmailsText], { type: 'text/plain' });
+        const blob = new Blob([allEmailsText], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `email_list_${Date.now()}.txt`;
-        document.body.appendChild(a);
+        a.download = `danh-sach-email.txt`;
         a.click();
-        document.body.removeChild(a);
         URL.revokeObjectURL(url);
-    }
+    };
 
-    function handleClear() {
+    const handleClear = () => {
         form.reset();
         clearErrors();
         resultsSection.style.display = 'none';
         resultArea.innerHTML = '';
         resultCount.textContent = '0';
-        localStorage.removeItem('emailGeneratorSettings'); // Also clear saved settings
-        loadSettings(); // Load defaults
-        updateLivePreview();
+        localStorage.removeItem('emailGeneratorSettings');
         showToast('Đã xóa và đặt lại.');
-    }
+    };
 
-    // --- FEATURE 3: HELP MODAL ---
-    function setupModals() {
-        const modals = document.querySelectorAll('.modal');
-        modals.forEach(modal => {
-            const closeBtn = modal.querySelector('.close-btn');
-            closeBtn.onclick = () => modal.style.display = 'none';
-        });
-
-        window.onclick = (event) => {
-            modals.forEach(modal => {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                }
-            });
-        };
-
+    // --- FEATURE: HELP & QR MODAL ---
+    const setupModals = () => {
         helpBtn.onclick = () => helpModal.style.display = 'block';
-    }
+        closeHelpModal.onclick = () => helpModal.style.display = 'none';
+        closeQrModal.onclick = () => qrModal.style.display = 'none';
+        window.onclick = (event) => {
+            if (event.target == helpModal) helpModal.style.display = 'none';
+            if (event.target == qrModal) qrModal.style.display = 'none';
+        };
+    };
 
-    // --- FEATURE 4: QR CODE ---
-    let qrcode = null; // To hold the QRCode instance
-    function showQrCode(email) {
-        qrCodeContainer.innerHTML = ''; // Clear previous QR
-        if (!qrcode) {
-             qrcode = new QRCode(qrCodeContainer, {
-                width: 200,
-                height: 200,
-                correctLevel: QRCode.CorrectLevel.H
-            });
+    let qrcode = null;
+    const showQrCode = (email) => {
+        qrCodeContainer.innerHTML = '';
+        if (typeof QRCode === 'undefined') {
+            showToast('Lỗi: Thư viện QRCode chưa được tải.', 'error');
+            return;
         }
-        qrcode.makeCode(email);
+        qrcode = new QRCode(qrCodeContainer, {
+            text: email,
+            width: 200,
+            height: 200,
+            correctLevel: QRCode.CorrectLevel.H
+        });
         qrEmailValue.textContent = email;
         qrModal.style.display = 'block';
-    }
+    };
 
-    // --- FEATURE 5: PWA (Service Worker Registration) ---
-    function registerServiceWorker() {
+    // --- FEATURE: PWA ---
+    const registerServiceWorker = () => {
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(registration => {
-                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                }, err => {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker: Registered', reg))
+                    .catch(err => console.log('Service Worker: Error', err));
             });
         }
-    }
+    };
     
-    // --- Event Listeners & Initializations ---
+    // --- Theme ---
+    const applyTheme = (theme) => {
+        document.documentElement.setAttribute('data-theme', theme);
+        themeToggle.checked = theme === 'dark';
+    };
+    const handleThemeToggle = () => {
+        const newTheme = themeToggle.checked ? 'dark' : 'light';
+        localStorage.setItem('theme', newTheme);
+        applyTheme(newTheme);
+    };
+
+    // --- Event Listeners ---
     form.addEventListener('submit', handleGenerate);
     copyAllBtn.addEventListener('click', handleCopyAll);
     exportBtn.addEventListener('click', handleExport);
     clearBtn.addEventListener('click', handleClear);
-    themeToggle.addEventListener('change', () => { /* theme logic... */ });
-    
-    [originalEmailInput, prefixInput, document.getElementById('randomSuffix'), ...document.querySelectorAll('input[name="separator"]')].forEach(el => {
-        el.addEventListener('input', updateLivePreview);
-        el.addEventListener('change', updateLivePreview);
+    themeToggle.addEventListener('change', handleThemeToggle);
+    resultArea.addEventListener('click', (e) => {
+        const copyButton = e.target.closest('.copy-single-btn');
+        const qrButton = e.target.closest('.qr-single-btn');
+        if (copyButton) {
+            const email = copyButton.closest('.result-item').querySelector('.result-email').textContent;
+            navigator.clipboard.writeText(email).then(() => showToast(`Đã sao chép: ${email}`));
+        }
+        if (qrButton) {
+            const email = qrButton.closest('.result-item').querySelector('.result-email').textContent;
+            showQrCode(email);
+        }
     });
 
     // --- Initializations ---
-    loadSettings(); // Load user settings
-    // loadTheme(); // Assuming you have this function
-    updateLivePreview();
-    setupModals(); // Set up all modal events
-    registerServiceWorker(); // Register the PWA service worker
+    loadSettings();
+    setupModals();
+    registerServiceWorker();
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    applyTheme(savedTheme);
 });
