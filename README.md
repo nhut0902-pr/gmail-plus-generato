@@ -4,7 +4,7 @@
 
 ## 🚀 Demo Trực tiếp
 
-[Bấm vào đây để xem demo trực tiếp](https://nhut0902.github.io/email-alias-generator/)
+[Bấm vào đây để xem demo trực tiếp](https://github.com/nhut0902-pr/gmail-plus-generato)
 
 *(Lưu ý: Bạn có thể thay thế liên kết này bằng URL của riêng bạn khi deploy lên GitHub Pages hoặc một dịch vụ hosting khác.)*
 
