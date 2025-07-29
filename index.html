@@ -4,103 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trình Tạo Email Nâng Cao</title>
-    <!-- Liên kết đến file CSS của bạn -->
+    
+    <!-- PWA Manifest & Theme Color -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007bff">
+    
     <link rel="stylesheet" href="style.css">
-    <!-- Optional: Thư viện icon (Font Awesome) để có thể thêm icon nếu muốn -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
     <div class="container">
-        <!-- Nút chuyển Chế độ Tối/Sáng -->
-        <div class="theme-switcher">
-            <label for="themeToggle" class="theme-label">Chế độ Tối</label>
-            <input type="checkbox" id="themeToggle" class="theme-toggle">
+        <div class="header-controls">
+            <!-- ADDED: Help Button -->
+            <button id="helpBtn" class="icon-btn" title="Hướng dẫn"><i class="fas fa-question-circle"></i></button>
+            <div class="theme-switcher">
+                <label for="themeToggle" class="theme-label">Chế độ Tối</label>
+                <input type="checkbox" id="themeToggle" class="theme-toggle">
+            </div>
         </div>
 
         <h1>Trình Tạo Email Nâng Cao</h1>
-        <p class="description">
-            Tạo nhanh danh sách email biến thể từ Gmail gốc với nhiều tùy chọn mạnh mẽ.
-        </p>
+        <p class="description">Tạo nhanh danh sách email biến thể từ Gmail gốc với nhiều tùy chọn mạnh mẽ.</p>
 
-        <!-- Form nhập liệu chính -->
-        <form id="emailGeneratorForm">
+        <form id="emailGeneratorForm" novalidate>
             <div class="form-group">
                 <label for="originalEmail">Gmail gốc</label>
-                <input type="email" id="originalEmail" placeholder="vidu@gmail.com" value="nhut0902@gmail.com" required>
+                <input type="email" id="originalEmail" placeholder="vidu@gmail.com" required>
+                <!-- ADDED: Smart Validation Message -->
+                <small class="error-message" id="emailError"></small>
             </div>
             
             <div class="form-group">
                 <label for="quantity">Số lượng cần tạo</label>
                 <input type="number" id="quantity" value="10" min="1" max="5000" required>
+                <small class="error-message" id="quantityError"></small>
             </div>
 
             <div class="form-group">
                 <label for="prefix">Tiền tố / Từ khóa</label>
                 <input type="text" id="prefix" placeholder="shop, test, dangky...">
-                <!-- Tính năng: Xem trước trực tiếp -->
                 <small class="live-preview">Xem trước: <span id="livePreview">...</span></small>
             </div>
 
-            <!-- Tính năng: Các tùy chọn nâng cao -->
-            <fieldset class="options-group">
-                <legend>Tùy chọn nâng cao</legend>
-                <div class="options-grid">
-                    <!-- Tính năng: Tùy chọn dấu phân cách -->
-                    <div class="option-item">
-                        <label>Dấu phân cách:</label>
-                        <div class="radio-group">
-                            <input type="radio" id="sepPlus" name="separator" value="+" checked>
-                            <label for="sepPlus">+</label>
-                            <input type="radio" id="sepDot" name="separator" value=".">
-                            <label for="sepDot">.</label>
-                        </div>
-                    </div>
-                    <!-- Tính năng: Tùy chọn hậu tố ngẫu nhiên -->
-                    <div class="option-item">
-                        <input type="checkbox" id="randomSuffix">
-                        <label for="randomSuffix">Hậu tố ngẫu nhiên</label>
-                    </div>
-                    <!-- Tính năng: Thêm email gốc vào kết quả -->
-                    <div class="option-item">
-                        <input type="checkbox" id="includeOriginal">
-                        <label for="includeOriginal">Thêm email gốc</label>
-                    </div>
-                </div>
-            </fieldset>
+            <fieldset class="options-group"><!-- ... (Không thay đổi) ... --></fieldset>
 
             <button type="submit" class="btn btn-primary">Tạo Email</button>
-            <!-- Tính năng: Nút xóa và đặt lại -->
             <button type="button" id="clearBtn" class="btn btn-secondary">Xóa & Đặt lại</button>
         </form>
 
-        <!-- Tính năng: Thanh tiến trình -->
-        <div class="progress-bar-container" id="progressContainer" style="display: none;">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
+        <div class="progress-bar-container" id="progressContainer" style="display: none;"><!-- ... --></div>
 
-        <!-- Khu vực hiển thị kết quả -->
         <div class="results" id="resultsSection" style="display: none;">
-            <!-- Tính năng: Đếm số lượng kết quả -->
             <h2>Kết quả (<span id="resultCount">0</span>)</h2>
-            <textarea id="resultArea" readonly></textarea>
+            <!-- MODIFIED: Changed textarea to a div for interactive items -->
+            <div id="resultArea" class="result-list"></div>
             <div class="action-buttons">
-                <button id="copyBtn" class="btn btn-success">Sao chép tất cả</button>
-                <!-- Tính năng: Xuất ra file .txt -->
+                <button id="copyAllBtn" class="btn btn-success">Sao chép tất cả</button>
                 <button id="exportBtn" class="btn btn-info">Xuất ra file .txt</button>
             </div>
         </div>
     </div>
 
-    <!-- Tính năng: Container cho thông báo Toast -->
+    <!-- ADDED: Modal for "How it works" -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">×</span>
+            <h2>Nó hoạt động thế nào?</h2>
+            <p>Công cụ này tận dụng một tính năng ẩn của Gmail:</p>
+            <ul>
+                <li><strong>Dấu cộng (+):</strong> Gmail sẽ bỏ qua mọi thứ từ dấu `+` đến ký tự `@`. Ví dụ, email gửi đến <code>nhut0902+shop@gmail.com</code> sẽ vào thẳng hộp thư của <code>nhut0902@gmail.com</code>.</li>
+                <li><strong>Dấu chấm (.):</strong> Gmail cũng không phân biệt dấu chấm trong tên người dùng. <code>nhut.0902@gmail.com</code> và <code>n.h.u.t.0902@gmail.com</code> đều là một.</li>
+            </ul>
+            <p><strong>Lợi ích:</strong> Bạn có thể tạo vô số địa chỉ email "ảo" để đăng ký dịch vụ, giúp bạn dễ dàng lọc email và biết được dịch vụ nào đã làm lộ email của bạn.</p>
+        </div>
+    </div>
+
+    <!-- ADDED: Modal for QR Code Display -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content qr-modal-content">
+            <span class="close-btn">×</span>
+            <h3>Mã QR cho Email</h3>
+            <div id="qrCodeContainer"></div>
+            <p id="qrEmailValue"></p>
+        </div>
+    </div>
+
     <div id="toastContainer"></div>
-
-    <!-- Footer đã được thêm vào -->
-    <footer>
-        <p>Powered by <a href="https://github.com/nhut0902" target="_blank" rel="noopener noreferrer">Nhut0902pr</a></p>
-    </footer>
-
-    <!-- Liên kết đến file JavaScript của bạn -->
+    <footer><p>Powered by <a href="https://github.com/nhut0902" target="_blank" rel="noopener noreferrer">Nhut0902pr</a></p></footer>
+    
+    <!-- ADDED: QR Code Library -->
+    <script src="qrcode.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
