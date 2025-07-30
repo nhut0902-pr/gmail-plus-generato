@@ -1,275 +1,228 @@
-document.addEventListener('DOMContentLoaded', () => {
+let deferredPrompt;
+let chatHistory = JSON.parse(localStorage.getItem("aiChatHistory")) || [];
+let currentLang = localStorage.getItem("lang") || "vi";
+let searchIndex = new FlexSearch({ encode: "advanced", tokenize: "forward", async: true });
+let searchableContent = [];
 
-    // --- DOM Element Selection ---
-    const form = document.getElementById('emailGeneratorForm');
-    const originalEmailInput = document.getElementById('originalEmail');
-    const quantityInput = document.getElementById('quantity');
-    const prefixInput = document.getElementById('prefix');
-    const livePreviewSpan = document.getElementById('livePreview');
-    
-    // Results
-    const resultsSection = document.getElementById('resultsSection');
-    const resultArea = document.getElementById('resultArea');
-    const resultCount = document.getElementById('resultCount');
-    const copyAllBtn = document.getElementById('copyAllBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const exportBtn = document.getElementById('exportBtn');
+// Đa ngôn ngữ
+const LANG = {
+  vi: {
+    toggleChat: "🤖 Hỏi AI",
+    chatTitle: "Trợ lý AI",
+    placeholder: "Hỏi tôi về email...",
+    send: "Gửi",
+    toastNoCopy: "Không có email để sao chép",
+    toastCopied: "Đã sao chép!",
+    toastError: "Sao chép thất bại",
+    toastAiError: "Lỗi kết nối AI",
+    generated: "Đã tạo %d email!",
+    installBtn: "📲 Cài đặt Ứng dụng",
+    helpTitle: "💡 Nó hoạt động thế nào?",
+    helpText1: "Gmail cho phép bạn thêm <strong>+từ-khóa</strong> vào email.",
+    helpText2: "Ví dụ: <strong>nhut0902+shop1@gmail.com</strong> vẫn nhận thư về <strong>nhut0902@gmail.com</strong>.",
+    helpText3: "Dùng để phân biệt nguồn đăng ký, chống spam.",
+    switchLang: "🌐 English"
+  },
+  en: {
+    toggleChat: "🤖 Ask AI",
+    chatTitle: "AI Assistant",
+    placeholder: "Ask me about emails...",
+    send: "Send",
+    toastNoCopy: "No emails to copy",
+    toastCopied: "Copied!",
+    toastError: "Copy failed",
+    toastAiError: "AI connection error",
+    generated: "Generated %d emails!",
+    installBtn: "📲 Install App",
+    helpTitle: "💡 How it works?",
+    helpText1: "Gmail allows <strong>+keyword</strong> in email address.",
+    helpText2: "Example: <strong>user+test1@gmail.com</strong> delivers to <strong>user@gmail.com</strong>.",
+    helpText3: "Use for signup tracking, spam protection.",
+    switchLang: "🌐 Tiếng Việt"
+  }
+};
 
-    // Toast & Progress
-    const toastContainer = document.getElementById('toastContainer');
-    const progressContainer = document.getElementById('progressContainer');
-    const progressBar = document.getElementById('progressBar');
-    
-    // Theme
-    const themeToggle = document.getElementById('themeToggle');
+function t(key) {
+  return LANG[currentLang][key] || key;
+}
 
-    // Modals
-    const helpBtn = document.getElementById('helpBtn');
-    const helpModal = document.getElementById('helpModal');
-    const closeHelpModal = document.getElementById('closeHelpModal');
-    const qrModal = document.getElementById('qrModal');
-    const qrCodeContainer = document.getElementById('qrCodeContainer');
-    const qrEmailValue = document.getElementById('qrEmailValue');
-    const closeQrModal = document.getElementById('closeQrModal');
+function switchLang() {
+  currentLang = currentLang === "vi" ? "en" : "vi";
+  localStorage.setItem("lang", currentLang);
+  updateUIWithLang();
+}
 
-    // --- Utility Functions ---
-    const showToast = (message, type = 'success') => {
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.textContent = message;
-        toastContainer.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    };
+function updateUIWithLang() {
+  document.getElementById("toggleChat").textContent = t("toggleChat");
+  document.querySelector(".chat-header h4").textContent = t("chatTitle");
+  document.getElementById("userQuery").placeholder = t("placeholder");
+  document.querySelector(".chat-input button").textContent = t("send");
+  document.getElementById("installButton").textContent = t("installBtn");
+  document.getElementById("switchLangBtn").textContent = t("switchLang");
 
-    const generateRandomString = (length = 5) => {
-        const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-        let result = '';
-        for (let i = 0; i < length; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return result;
-    };
+  const help = document.querySelector(".help-section h3");
+  if (help) help.innerHTML = t("helpTitle");
+}
 
-    // --- FEATURE: USER SETTINGS PERSISTENCE ---
-    const saveSettings = () => {
-        const settings = {
-            email: originalEmailInput.value,
-            quantity: quantityInput.value,
-            prefix: prefixInput.value,
-            separator: document.querySelector('input[name="separator"]:checked').value,
-            random: document.getElementById('randomSuffix').checked,
-            includeOriginal: document.getElementById('includeOriginal').checked,
-        };
-        localStorage.setItem('emailGeneratorSettings', JSON.stringify(settings));
-    };
+// Toast
+function showToast(message, duration = 3000) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.className = "toast show";
+  setTimeout(() => toast.className = "toast", duration);
+}
 
-    const loadSettings = () => {
-        const settings = JSON.parse(localStorage.getItem('emailGeneratorSettings'));
-        if (settings) {
-            originalEmailInput.value = settings.email || '';
-            quantityInput.value = settings.quantity || 10;
-            prefixInput.value = settings.prefix || '';
-            document.querySelector(`input[name="separator"][value="${settings.separator || '+'}"]`).checked = true;
-            document.getElementById('randomSuffix').checked = settings.random || false;
-            document.getElementById('includeOriginal').checked = settings.includeOriginal || false;
-        }
-    };
+// Chat AI
+function toggleChat(show) {
+  document.getElementById("chatBox").style.display = show ? "block" : "none";
+}
 
-    // --- FEATURE: SMARTER FORM VALIDATION ---
-    const showError = (inputId, message) => {
-        const input = document.getElementById(inputId);
-        const errorField = document.getElementById(`${inputId}Error`);
-        if(input && errorField) {
-            input.classList.add('has-error');
-            errorField.textContent = message;
-        }
-    };
+document.getElementById("toggleChat").addEventListener("click", () => {
+  toggleChat(document.getElementById("chatBox").style.display !== "block");
+});
 
-    const clearErrors = () => {
-        document.querySelectorAll('.error-message').forEach(msg => msg.textContent = '');
-        document.querySelectorAll('.has-error').forEach(input => input.classList.remove('has-error'));
-    };
+async function sendToAI() {
+  const input = document.getElementById("userQuery");
+  const messages = document.getElementById("chatMessages");
+  const query = input.value.trim();
+  if (!query) return;
 
-    const validateForm = () => {
-        clearErrors();
-        let isValid = true;
-        if (!originalEmailInput.value.trim()) {
-            showError('originalEmail', 'Vui lòng nhập địa chỉ email.');
-            isValid = false;
-        } else if (!originalEmailInput.value.includes('@gmail.com')) {
-            showError('originalEmail', 'Hiện chỉ hỗ trợ địa chỉ @gmail.com.');
-            isValid = false;
-        }
-        if (!quantityInput.value) {
-            showError('quantity', 'Vui lòng nhập số lượng.');
-            isValid = false;
-        } else if (parseInt(quantityInput.value) < 1) {
-            showError('quantity', 'Số lượng phải lớn hơn 0.');
-            isValid = false;
-        }
-        return isValid;
-    };
-    
-    // --- Main Logic ---
-    const displayResults = (emails) => {
-        resultArea.innerHTML = '';
-        if (emails.length === 0) return;
+  chatHistory.push({ role: "user", content: query });
+  saveChatHistory();
 
-        emails.forEach(email => {
-            const item = document.createElement('div');
-            item.className = 'result-item';
-            item.innerHTML = `
-                <span class="result-email">${email}</span>
-                <div class="result-actions">
-                    <button class="copy-single-btn" title="Sao chép email này"><i class="fas fa-copy"></i></button>
-                    <button class="qr-single-btn" title="Hiển thị mã QR"><i class="fas fa-qrcode"></i></button>
-                </div>`;
-            resultArea.appendChild(item);
-        });
-    };
+  const userMsg = document.createElement("div");
+  userMsg.className = "msg user";
+  userMsg.textContent = query;
+  messages.appendChild(userMsg);
 
-    const handleGenerate = (e) => {
-        e.preventDefault();
-        if (!validateForm()) {
-            showToast('Vui lòng kiểm tra lại các lỗi.', 'error');
-            return;
-        }
-        saveSettings();
-        
-        const originalEmail = originalEmailInput.value.trim();
-        const quantity = parseInt(quantityInput.value, 10);
-        const prefix = prefixInput.value.trim();
-        const separator = document.querySelector('input[name="separator"]:checked').value;
-        const useRandom = document.getElementById('randomSuffix').checked;
-        const includeOriginal = document.getElementById('includeOriginal').checked;
+  input.value = "";
+  messages.scrollTop = messages.scrollHeight;
 
-        const [username] = originalEmail.split('@');
-        const cleanUsername = username.split('+')[0];
-        const generatedEmails = [];
-        
-        for (let i = 1; i <= quantity; i++) {
-            let alias = useRandom ? (prefix ? `${prefix}_${generateRandomString()}` : generateRandomString()) : (prefix ? `${prefix}${i}` : `${i}`);
-            generatedEmails.push(`${cleanUsername}${separator}${alias}@gmail.com`);
-        }
-        
-        if (includeOriginal) generatedEmails.unshift(originalEmail);
-        
-        displayResults(generatedEmails);
-        resultCount.textContent = generatedEmails.length;
-        resultsSection.style.display = 'block';
-        showToast(`Đã tạo thành công ${generatedEmails.length} email!`);
-    };
-    
-    const getAllEmailsFromResults = () => {
-        return Array.from(resultArea.querySelectorAll('.result-email')).map(el => el.textContent).join('\n');
-    };
-
-    const handleCopyAll = () => {
-        const allEmailsText = getAllEmailsFromResults();
-        if (!allEmailsText) {
-            showToast('Không có gì để sao chép!', 'error');
-            return;
-        }
-        navigator.clipboard.writeText(allEmailsText).then(() => showToast('Đã sao chép tất cả email!'));
-    };
-    
-    const handleExport = () => {
-        const allEmailsText = getAllEmailsFromResults();
-        if (!allEmailsText) {
-            showToast('Không có gì để xuất!', 'error'); return;
-        }
-        const blob = new Blob([allEmailsText], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `danh-sach-email.txt`;
-        a.click();
-        URL.revokeObjectURL(url);
-    };
-
-    const handleClear = () => {
-        form.reset();
-        clearErrors();
-        resultsSection.style.display = 'none';
-        resultArea.innerHTML = '';
-        resultCount.textContent = '0';
-        localStorage.removeItem('emailGeneratorSettings');
-        showToast('Đã xóa và đặt lại.');
-    };
-
-    // --- FEATURE: HELP & QR MODAL ---
-    const setupModals = () => {
-        helpBtn.onclick = () => helpModal.style.display = 'block';
-        closeHelpModal.onclick = () => helpModal.style.display = 'none';
-        closeQrModal.onclick = () => qrModal.style.display = 'none';
-        window.onclick = (event) => {
-            if (event.target == helpModal) helpModal.style.display = 'none';
-            if (event.target == qrModal) qrModal.style.display = 'none';
-        };
-    };
-
-    let qrcode = null;
-    const showQrCode = (email) => {
-        qrCodeContainer.innerHTML = '';
-        if (typeof QRCode === 'undefined') {
-            showToast('Lỗi: Thư viện QRCode chưa được tải.', 'error');
-            return;
-        }
-        qrcode = new QRCode(qrCodeContainer, {
-            text: email,
-            width: 200,
-            height: 200,
-            correctLevel: QRCode.CorrectLevel.H
-        });
-        qrEmailValue.textContent = email;
-        qrModal.style.display = 'block';
-    };
-
-    // --- FEATURE: PWA ---
-    const registerServiceWorker = () => {
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Service Worker: Registered', reg))
-                    .catch(err => console.log('Service Worker: Error', err));
-            });
-        }
-    };
-    
-    // --- Theme ---
-    const applyTheme = (theme) => {
-        document.documentElement.setAttribute('data-theme', theme);
-        themeToggle.checked = theme === 'dark';
-    };
-    const handleThemeToggle = () => {
-        const newTheme = themeToggle.checked ? 'dark' : 'light';
-        localStorage.setItem('theme', newTheme);
-        applyTheme(newTheme);
-    };
-
-    // --- Event Listeners ---
-    form.addEventListener('submit', handleGenerate);
-    copyAllBtn.addEventListener('click', handleCopyAll);
-    exportBtn.addEventListener('click', handleExport);
-    clearBtn.addEventListener('click', handleClear);
-    themeToggle.addEventListener('change', handleThemeToggle);
-    resultArea.addEventListener('click', (e) => {
-        const copyButton = e.target.closest('.copy-single-btn');
-        const qrButton = e.target.closest('.qr-single-btn');
-        if (copyButton) {
-            const email = copyButton.closest('.result-item').querySelector('.result-email').textContent;
-            navigator.clipboard.writeText(email).then(() => showToast(`Đã sao chép: ${email}`));
-        }
-        if (qrButton) {
-            const email = qrButton.closest('.result-item').querySelector('.result-email').textContent;
-            showQrCode(email);
-        }
+  try {
+    const response = await fetch("/.netlify/functions/ai-proxy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: query })
     });
 
-    // --- Initializations ---
-    loadSettings();
-    setupModals();
-    registerServiceWorker();
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    applyTheme(savedTheme);
+    const data = await response.json();
+    const botText = data.text;
+
+    chatHistory.push({ role: "bot", content: botText });
+    saveChatHistory();
+
+    const botMsg = document.createElement("div");
+    botMsg.className = "msg bot";
+    botMsg.textContent = botText;
+    messages.appendChild(botMsg);
+    messages.scrollTop = messages.scrollHeight;
+  } catch (err) {
+    const errorMsg = document.createElement("div");
+    errorMsg.className = "msg bot";
+    errorMsg.style.backgroundColor = "#e74c3c";
+    errorMsg.style.color = "white";
+    errorMsg.textContent = t("toastAiError");
+    messages.appendChild(errorMsg);
+    showToast(t("toastAiError"));
+  }
+}
+
+function saveChatHistory() {
+  localStorage.setItem("aiChatHistory", JSON.stringify(chatHistory.slice(-50)));
+}
+
+// Tìm kiếm
+async function searchContent() {
+  const query = document.getElementById("siteSearch").value.trim();
+  const resultsContainer = document.getElementById("searchResults");
+
+  if (!query) {
+    resultsContainer.classList.remove("show");
+    return;
+  }
+
+  const results = await searchIndex.search(query);
+  if (results.length === 0) {
+    resultsContainer.innerHTML = '<div class="no-result">Không tìm thấy</div>';
+    resultsContainer.classList.add("show");
+    return;
+  }
+
+  let html = '';
+  results.slice(0, 10).forEach(id => {
+    const item = searchableContent.find(c => c.id === id);
+    if (item) {
+      html += `<div class="search-item" onclick="useSearchResult('${item.ref}')">
+                 <strong>${item.type}</strong>: ${item.ref}
+               </div>`;
+    }
+  });
+
+  resultsContainer.innerHTML = html;
+  resultsContainer.classList.add("show");
+}
+
+function useSearchResult(text) {
+  document.getElementById("prefix").value = text.replace(/[^\w]/g, '').toLowerCase();
+  document.getElementById("searchResults").classList.remove("show");
+}
+
+// Gợi ý thông minh
+async function suggestSmartPrefix() {
+  const contextOptions = ["đăng ký tài khoản", "test phần mềm", "nhận bản tin", "mua sắm online"];
+  const context = contextOptions[Math.floor(Math.random() * contextOptions.length)];
+  const prompt = `Gợi ý 1 tiền tố email ngắn cho: "${context}". Chỉ trả về 1 từ.`;
+
+  try {
+    const response = await fetch("/.netlify/functions/ai-proxy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt })
+    });
+
+    const data = await response.json();
+    const suggestion = data.text.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (suggestion) {
+      document.getElementById("prefix").value = suggestion;
+      showToast(`💡 Gợi ý: "${suggestion}" (${context})`);
+    }
+  } catch (err) {
+    const fallback = ["temp", "test", "signup", "shop"][Math.floor(Math.random() * 4)];
+    document.getElementById("prefix").value = fallback;
+    showToast(`💡 (Dự phòng) Gợi ý: ${fallback}`);
+  }
+}
+
+// Khởi tạo
+window.onload = function () {
+  document.getElementById("baseEmail").value = localStorage.getItem("baseEmail") || "";
+  document.getElementById("prefix").value = localStorage.getItem("prefix") || "temp";
+  document.getElementById("count").value = localStorage.getItem("count") || "5";
+
+  updateUIWithLang();
+  loadChatHistory();
+  initSearchIndex();
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(err => console.log("SW failed:", err));
+  }
+};
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById("installButton").style.display = "block";
 });
+
+document.getElementById("installButton").addEventListener("click", () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      document.getElementById("installButton").style.display = "none";
+    });
+  }
+});
+
+// Các hàm còn lại: generateEmails, copyToClipboard, v.v. (giữ nguyên như trước)
+// (Đã giới hạn độ dài, nhưng bạn có thể thêm vào nếu cần)
