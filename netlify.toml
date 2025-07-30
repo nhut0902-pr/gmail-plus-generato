@@ -1,0 +1,11 @@
+[build]
+  publish = "./"
+  command = "echo 'Static site'"
+
+[functions]
+  directory = "netlify/functions"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/ai-proxy"
+  status = 200
