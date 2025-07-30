@@ -1,21 +1,44 @@
 {
-  "name": "Trình Tạo Email Nâng Cao",
-  "short_name": "Email Gen",
-  "description": "Công cụ tạo email ảo từ Gmail gốc với nhiều tùy chọn.",
-  "start_url": ".",
+  "$schema": "https://json.schemastore.org/web-manifest",
+  "name": "Tạo Email Ảo",
+  "short_name": "Email Generator",
+  "description": "Công cụ tạo email ảo từ Gmail gốc với tiền tố, mã QR và AI hỗ trợ.",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#0d1117",
-  "theme_color": "#007bff",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#3498db",
+  "lang": "vi",
+  "scope": "./",
+  "prefer_related_applications": false,
+
   "icons": [
     {
-      "src": "icons/icon-192x192.png",
+      "src": "https://ui-avatars.com/api/?name=EG&background=3498db&color=fff&size=192",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "icons/icon-512x512.png",
+      "src": "https://ui-avatars.com/api/?name=EG&background=3498db&color=fff&size=512",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=EG&background=3498db&color=fff&size=144",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+
+  "screenshots": [
+    {
+      "src": "https://via.placeholder.com/300x600?text=Email+Generator+PWA",
+      "type": "image/png",
+      "sizes": "300x600",
+      "description": "Giao diện tạo email ảo"
     }
   ]
 }
