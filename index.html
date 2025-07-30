@@ -1,123 +1,109 @@
 <!DOCTYPE html>
-<html lang="vi" data-theme="light">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trình Tạo Email Nâng Cao</title>
-    
-    <!-- PWA Manifest & Theme Color -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#007bff">
-    
-    <!-- CSS Files (Font Awesome & Style của bạn) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#3498db" />
+  <meta name="description" content="Tạo email ảo từ Gmail gốc với tiền tố, sao chép nhanh, mã QR và chat AI." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <title>Tạo Email Ảo - Công cụ miễn phí</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=Email+Generator&background=3498db&color=fff" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- FlexSearch -->
+  <script src="https://unpkg.com/flexsearch@0.7.38/dist/flexsearch.bundle.js"></script>
 </head>
 <body>
+  <div class="container">
+    <h1>📧 Tạo Email Ảo</h1>
+    <p class="tagline">Dùng Gmail alias để quản lý đăng ký dễ dàng hơn</p>
 
-    <div class="container">
-        <div class="header-controls">
-            <button id="helpBtn" class="icon-btn" title="Hướng dẫn"><i class="fas fa-question-circle"></i></button>
-            <div class="theme-switcher">
-                <label for="themeToggle" class="theme-label">Chế độ Tối</label>
-                <input type="checkbox" id="themeToggle" class="theme-toggle">
-            </div>
-        </div>
-
-        <h1>Trình Tạo Email Nâng Cao</h1>
-        <p class="description">Tạo nhanh danh sách email biến thể từ Gmail gốc với nhiều tùy chọn mạnh mẽ.</p>
-
-        <form id="emailGeneratorForm" novalidate>
-            <div class="form-group">
-                <label for="originalEmail">Gmail gốc</label>
-                <input type="email" id="originalEmail" placeholder="vidu@gmail.com" required>
-                <small class="error-message" id="originalEmailError"></small>
-            </div>
-            
-            <div class="form-group">
-                <label for="quantity">Số lượng cần tạo</label>
-                <input type="number" id="quantity" value="10" min="1" max="5000" required>
-                <small class="error-message" id="quantityError"></small>
-            </div>
-
-            <div class="form-group">
-                <label for="prefix">Tiền tố / Từ khóa</label>
-                <input type="text" id="prefix" placeholder="shop, test, dangky...">
-                <small class="live-preview">Xem trước: <span id="livePreview">...</span></small>
-            </div>
-
-            <fieldset class="options-group">
-                <legend>Tùy chọn nâng cao</legend>
-                <div class="options-grid">
-                    <div class="option-item">
-                        <label>Dấu phân cách:</label>
-                        <div class="radio-group">
-                            <input type="radio" id="sepPlus" name="separator" value="+" checked>
-                            <label for="sepPlus">+</label>
-                            <input type="radio" id="sepDot" name="separator" value=".">
-                            <label for="sepDot">.</label>
-                        </div>
-                    </div>
-                    <div class="option-item">
-                        <input type="checkbox" id="randomSuffix">
-                        <label for="randomSuffix">Hậu tố ngẫu nhiên</label>
-                    </div>
-                    <div class="option-item">
-                        <input type="checkbox" id="includeOriginal">
-                        <label for="includeOriginal">Thêm email gốc</label>
-                    </div>
-                </div>
-            </fieldset>
-
-            <button type="submit" class="btn btn-primary">Tạo Email</button>
-            <button type="button" id="clearBtn" class="btn btn-secondary">Xóa & Đặt lại</button>
-        </form>
-
-        <div class="progress-bar-container" id="progressContainer" style="display: none;">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
-
-        <div class="results" id="resultsSection" style="display: none;">
-            <h2>Kết quả (<span id="resultCount">0</span>)</h2>
-            <div id="resultArea" class="result-list"></div>
-            <div class="action-buttons">
-                <button id="copyAllBtn" class="btn btn-success">Sao chép tất cả</button>
-                <button id="exportBtn" class="btn btn-info">Xuất ra file .txt</button>
-            </div>
-        </div>
+    <!-- Tìm kiếm -->
+    <div class="search-section">
+      <label for="siteSearch">🔍 Tìm kiếm trên trang</label>
+      <input 
+        type="text" 
+        id="siteSearch" 
+        placeholder="Tìm email, chat, hướng dẫn..." 
+        oninput="searchContent()" 
+      />
+      <div id="searchResults" class="search-results"></div>
     </div>
 
-    <!-- Modal cho Hướng dẫn -->
-    <div id="helpModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" id="closeHelpModal">×</span>
-            <h2>Nó hoạt động thế nào?</h2>
-            <p>Công cụ này tận dụng một tính năng ẩn của Gmail:</p>
-            <ul>
-                <li><strong>Dấu cộng (+):</strong> Gmail sẽ bỏ qua mọi thứ từ dấu `+` đến ký tự `@`. Ví dụ, email gửi đến <code>nhut0902+shop@gmail.com</code> sẽ vào thẳng hộp thư của <code>nhut0902@gmail.com</code>.</li>
-                <li><strong>Dấu chấm (.):</strong> Gmail cũng không phân biệt dấu chấm trong tên người dùng. <code>nhut.0902@gmail.com</code> và <code>n.h.u.t.0902@gmail.com</code> đều là một.</li>
-            </ul>
-            <p><strong>Lợi ích:</strong> Bạn có thể tạo vô số địa chỉ email "ảo" để đăng ký dịch vụ, giúp bạn dễ dàng lọc email và biết được dịch vụ nào đã làm lộ email của bạn.</p>
-        </div>
+    <!-- Hướng dẫn -->
+    <div class="help-section">
+      <h3>💡 Nó hoạt động thế nào?</h3>
+      <p>Gmail cho phép bạn thêm <strong>+từ-khóa</strong> vào email. Ví dụ:</p>
+      <p><strong>nhut0902+shop1@gmail.com</strong> vẫn nhận thư về <strong>nhut0902@gmail.com</strong>.</p>
+      <p>Dùng để phân biệt nguồn đăng ký, chống spam, hoặc test form.</p>
+      <button id="switchLangBtn" style="margin-top:10px;background:#95a5a6;border:none;padding:6px 12px;color:white;border-radius:6px;cursor:pointer;">🌐 English</button>
     </div>
 
-    <!-- Modal cho Mã QR -->
-    <div id="qrModal" class="modal">
-        <div class="modal-content qr-modal-content">
-            <span class="close-btn" id="closeQrModal">×</span>
-            <h3>Mã QR cho Email</h3>
-            <div id="qrCodeContainer"></div>
-            <p id="qrEmailValue"></p>
-        </div>
+    <!-- Form -->
+    <div class="form-group">
+      <label for="baseEmail">Gmail Gốc (ví dụ: nhut0902@gmail.com)</label>
+      <input type="text" id="baseEmail" placeholder="Nhập email gốc" />
     </div>
 
-    <div id="toastContainer"></div>
-    <footer><p>Powered by <a href="https://github.com/nhut0902" target="_blank" rel="noopener noreferrer">Nhut0902pr</a></p></footer>
-    
-    <!-- QUAN TRỌNG: Thứ tự tải script đúng -->
-    <!-- 1. Tải thư viện QR Code TRƯỚC -->
-    <script src="qrcode.min.js"></script>
-    <!-- 2. Tải script chính của bạn SAU CÙNG -->
-    <script src="script.js"></script>
+    <div class="form-group">
+      <label for="prefix">Tiền tố / Từ khóa (ví dụ: shop, test)</label>
+      <input type="text" id="prefix" placeholder="shop" />
+      <button onclick="suggestSmartPrefix()" style="margin-top:8px;background:#9b59b6;color:white;border:none;padding:6px 12px;font-size:12px;border-radius:6px;cursor:pointer;">
+        💡 Gợi ý thông minh
+      </button>
+    </div>
+
+    <div class="form-group">
+      <label for="count">Số lượng email muốn tạo (1-100)</label>
+      <input type="number" id="count" min="1" max="100" value="5" />
+    </div>
+
+    <button onclick="generateEmails()">Tạo Email</button>
+
+    <!-- Nút cài PWA -->
+    <button id="installButton" class="install-btn">📲 Cài đặt Ứng dụng</button>
+
+    <!-- Kết quả -->
+    <div class="result">
+      <h2>Danh sách Email Ảo</h2>
+      <pre id="emailList">Kết quả sẽ hiển thị ở đây...</pre>
+      <button class="copy-btn" onclick="copyToClipboard()">Sao chép tất cả</button>
+      <div id="qrList"></div>
+    </div>
+  </div>
+
+  <!-- Chat với AI -->
+  <div class="ai-chat">
+    <button id="toggleChat" class="ai-toggle">🤖 Hỏi AI</button>
+    <div id="chatBox" class="chat-box">
+      <div class="chat-header">
+        <h4>Chat với AI</h4>
+        <button onclick="toggleChat(false)">×</button>
+      </div>
+      <div id="chatMessages" class="chat-messages"></div>
+      <div class="chat-input">
+        <input type="text" id="userQuery" placeholder="Hỏi tôi về email..." />
+        <button onclick="sendToAI()">Gửi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <div class="footer">
+    © 2025 Công cụ tạo email ảo. <br>
+    Có thể cài đặt như ứng dụng trên điện thoại.
+  </div>
+
+  <!-- JavaScript -->
+  <script src="script.js"></script>
 </body>
 </html>
