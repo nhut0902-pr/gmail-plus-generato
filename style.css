@@ -35,71 +35,6 @@ h1 {
   margin-bottom: 25px;
 }
 
-/* Tìm kiếm */
-.search-section {
-  margin: 15px 0;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 10px;
-  border: 1px solid #e0e0e0;
-}
-
-.search-section label {
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 6px;
-  display: block;
-}
-
-#siteSearch {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 15px;
-  outline: none;
-}
-
-#siteSearch:focus {
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-}
-
-.search-results {
-  margin-top: 10px;
-  max-height: 200px;
-  overflow-y: auto;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  display: none;
-}
-
-.search-results.show {
-  display: block;
-}
-
-.search-item {
-  padding: 8px 12px;
-  border-bottom: 1px solid #eee;
-  cursor: pointer;
-  font-family: monospace;
-  font-size: 13px;
-  color: #333;
-}
-
-.search-item:hover {
-  background: #f0f7ff;
-}
-
-.no-result {
-  padding: 10px;
-  color: #777;
-  font-style: italic;
-  text-align: center;
-}
-
 /* Form */
 .form-group {
   margin-bottom: 18px;
@@ -239,7 +174,7 @@ button.secondary:hover {
   font-size: 0.9em;
 }
 
-/* AI Chat */
+/* AI Chat Sidebar */
 .ai-chat {
   position: fixed;
   bottom: 20px;
@@ -260,13 +195,15 @@ button.secondary:hover {
 
 .chat-box {
   display: none;
-  width: 320px;
+  width: 360px;
   max-width: 90vw;
+  height: 400px;
   background: white;
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-  margin-top: 10px;
   overflow: hidden;
+  flex-direction: column;
+  display: flex;
 }
 
 .chat-header {
@@ -292,11 +229,13 @@ button.secondary:hover {
 }
 
 .chat-messages {
+  flex: 1;
   padding: 15px;
-  height: 200px;
   overflow-y: auto;
   background: #f9f9f9;
   font-size: 14px;
+  display: flex;
+  flex-direction: column;
 }
 
 .msg {
@@ -318,6 +257,60 @@ button.secondary:hover {
   background: #e0e0e0;
   color: #333;
   align-self: flex-start;
+}
+
+/* Tìm kiếm web */
+.search-result-block {
+  margin-bottom: 10px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.search-header {
+  background: #3498db;
+  color: white;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.search-items {
+  padding: 10px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.search-item {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #ddd;
+}
+
+.search-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.search-title {
+  font-weight: 600;
+  color: #2980b9;
+  text-decoration: none;
+  font-size: 14px;
+  display: block;
+}
+
+.search-title:hover {
+  text-decoration: underline;
+}
+
+.search-snippet {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #555;
+  line-height: 1.4;
 }
 
 .chat-input {
@@ -379,4 +372,4 @@ button.secondary:hover {
 
 .install-btn:hover {
   background-color: #7d3c98;
-    }
+}
