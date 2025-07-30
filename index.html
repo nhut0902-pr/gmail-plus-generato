@@ -17,22 +17,34 @@
   <!-- CSS -->
   <link rel="stylesheet" href="style.css" />
 
-  <!-- FlexSearch -->
-  <script src="https://unpkg.com/flexsearch@0.7.38/dist/flexsearch.bundle.js"></script>
+  <!-- FlexSearch - CDN ổn định + Fallback -->
+  <script>
+    // Fallback nếu FlexSearch lỗi
+    window.addEventListener('error', function(e) {
+      if (e.filename && e.filename.includes('flexsearch')) {
+        console.warn('FlexSearch tải thất bại. Tắt tìm kiếm.');
+        window.FlexSearch = class {
+          constructor() {}
+          add() {}
+          search() { return []; }
+        };
+      }
+    }, true);
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/flexsearch@0.7.38/dist/flexsearch.bundle.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <div class="container">
     <h1>📧 Tạo Email Ảo</h1>
     <p class="tagline">Dùng Gmail alias để quản lý đăng ký dễ dàng hơn</p>
 
-    <!-- Tìm kiếm -->
+    <!-- Tìm kiếm (ẩn nếu lỗi) -->
     <div class="search-section">
       <label for="siteSearch">🔍 Tìm kiếm trên trang</label>
       <input 
         type="text" 
         id="siteSearch" 
         placeholder="Tìm email, chat, hướng dẫn..." 
-        oninput="searchContent()" 
       />
       <div id="searchResults" class="search-results"></div>
     </div>
@@ -65,16 +77,16 @@
       <input type="number" id="count" min="1" max="100" value="5" />
     </div>
 
-    <button onclick="generateEmails()">Tạo Email</button>
+    <button id="generateBtn">Tạo Email</button>
 
     <!-- Nút cài PWA -->
-    <button id="installButton" class="install-btn">📲 Cài đặt Ứng dụng</button>
+    <button id="installButton" class="install-btn" style="display:none">📲 Cài đặt Ứng dụng</button>
 
     <!-- Kết quả -->
     <div class="result">
       <h2>Danh sách Email Ảo</h2>
       <pre id="emailList">Kết quả sẽ hiển thị ở đây...</pre>
-      <button class="copy-btn" onclick="copyToClipboard()">Sao chép tất cả</button>
+      <button class="copy-btn" id="copyBtn">Sao chép tất cả</button>
       <div id="qrList"></div>
     </div>
   </div>
@@ -82,7 +94,7 @@
   <!-- Chat với AI -->
   <div class="ai-chat">
     <button id="toggleChat" class="ai-toggle">🤖 Hỏi AI</button>
-    <div id="chatBox" class="chat-box">
+    <div id="chatBox" class="chat-box" style="display:none">
       <div class="chat-header">
         <h4>Chat với AI</h4>
         <button onclick="toggleChat(false)">×</button>
@@ -104,6 +116,6 @@
   </div>
 
   <!-- JavaScript -->
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 </html>
