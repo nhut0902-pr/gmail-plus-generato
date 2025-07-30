@@ -1,11 +1,7 @@
-// === BIẾN TOÀN CỤC ===
 let deferredPrompt;
-let chatHistory = [];
-let currentLang = "vi";
-let searchIndex = null;
-let searchableContent = [];
+let chatHistory = JSON.parse(localStorage.getItem("aiChatHistory")) || [];
+let currentLang = localStorage.getItem("lang") || "vi";
 
-// === ĐA NGÔN NGỮ ===
 const LANG = {
   vi: {
     toggleChat: "🤖 Hỏi AI",
@@ -17,12 +13,7 @@ const LANG = {
     toastError: "Sao chép thất bại",
     toastAiError: "Lỗi kết nối AI",
     generated: "Đã tạo %d email!",
-    installBtn: "📲 Cài đặt Ứng dụng",
-    helpTitle: "💡 Nó hoạt động thế nào?",
-    helpText1: "Gmail cho phép bạn thêm <strong>+từ-khóa</strong> vào email.",
-    helpText2: "Ví dụ: <strong>nhut0902+shop1@gmail.com</strong> vẫn nhận thư về <strong>nhut0902@gmail.com</strong>.",
-    helpText3: "Dùng để phân biệt nguồn đăng ký, chống spam.",
-    switchLang: "🌐 English"
+    installBtn: "📲 Cài đặt Ứng dụng"
   },
   en: {
     toggleChat: "🤖 Ask AI",
@@ -34,12 +25,7 @@ const LANG = {
     toastError: "Copy failed",
     toastAiError: "AI connection error",
     generated: "Generated %d emails!",
-    installBtn: "📲 Install App",
-    helpTitle: "💡 How it works?",
-    helpText1: "Gmail allows <strong>+keyword</strong> in email address.",
-    helpText2: "Example: <strong>user+test1@gmail.com</strong> delivers to <strong>user@gmail.com</strong>.",
-    helpText3: "Use for signup tracking, spam protection.",
-    switchLang: "🌐 Tiếng Việt"
+    installBtn: "📲 Install App"
   }
 };
 
@@ -54,22 +40,14 @@ function switchLang() {
 }
 
 function updateUIWithLang() {
-  const toggleChat = document.getElementById("toggleChat");
-  const chatTitle = document.querySelector(".chat-header h4");
-  const userQuery = document.getElementById("userQuery");
-  const sendBtn = document.querySelector(".chat-input button");
-  const installBtn = document.getElementById("installButton");
-  const switchBtn = document.getElementById("switchLangBtn");
-
-  if (toggleChat) toggleChat.textContent = t("toggleChat");
-  if (chatTitle) chatTitle.textContent = t("chatTitle");
-  if (userQuery) userQuery.placeholder = t("placeholder");
-  if (sendBtn) sendBtn.textContent = t("send");
-  if (installBtn) installBtn.textContent = t("installBtn");
-  if (switchBtn) switchBtn.textContent = t("switchLang");
+  document.getElementById("toggleChat").textContent = t("toggleChat");
+  document.querySelector(".chat-header h4").textContent = t("chatTitle");
+  document.getElementById("userQuery").placeholder = "Hỏi tôi hoặc gõ: Tìm cách tạo email ảo";
+  document.querySelector(".chat-input button").textContent = t("send");
+  document.getElementById("installButton").textContent = t("installBtn");
+  document.getElementById("switchLangBtn").textContent = currentLang === "vi" ? "🌐 English" : "🌐 Tiếng Việt";
 }
 
-// === TOAST ===
 function showToast(message, duration = 3000) {
   const toast = document.getElementById("toast");
   if (!toast) return;
@@ -80,10 +58,74 @@ function showToast(message, duration = 3000) {
   }, duration);
 }
 
-// === CHAT AI ===
 function toggleChat(show) {
   const chatBox = document.getElementById("chatBox");
-  if (chatBox) chatBox.style.display = show ? "block" : "none";
+  if (chatBox) chatBox.style.display = show ? "flex" : "none";
+}
+
+document.getElementById("toggleChat")?.addEventListener("click", () => {
+  toggleChat(true);
+});
+
+// Tìm kiếm miễn phí với DuckDuckGo
+async function searchWeb(query) {
+  try {
+    const response = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`);
+    const data = await response.json();
+    const results = [];
+
+    if (data.AbstractText) {
+      results.push({
+        title: data.Heading || "Thông tin",
+        snippet: data.AbstractText,
+        link: data.AbstractURL || `https://duckduckgo.com/?q=${encodeURIComponent(query)}`
+      });
+    }
+
+    if (data.RelatedTopics) {
+      data.RelatedTopics.slice(0, 5).forEach(topic => {
+        if (topic.FirstURL && topic.Text) {
+          results.push({
+            title: topic.Text.split(' - ')[0] || topic.Text,
+            snippet: topic.Text,
+            link: topic.FirstURL
+          });
+        }
+      });
+    }
+
+    return results.length > 0 ? results : [{
+      title: "Không tìm thấy",
+      snippet: "Không có kết quả phù hợp.",
+      link: `https://duckduckgo.com/?q=${encodeURIComponent(query)}`
+    }];
+  } catch (err) {
+    return [{
+      title: "Lỗi mạng",
+      snippet: "Không thể kết nối tìm kiếm.",
+      link: `https://duckduckgo.com/?q=${encodeURIComponent(query)}`
+    }];
+  }
+}
+
+function displaySearchResults(results, query) {
+  const messages = document.getElementById("chatMessages");
+  const resultDiv = document.createElement("div");
+  resultDiv.className = "search-result-block";
+
+  let html = `<div class="search-header">🔍 Tìm: <strong>"${query}"</strong></div>`;
+  html += `<div class="search-items">`;
+  results.forEach(item => {
+    html += `
+      <div class="search-item">
+        <a href="${item.link}" target="_blank" rel="noopener" class="search-title">${item.title}</a>
+        <p class="search-snippet">${item.snippet}</p>
+      </div>`;
+  });
+  html += `</div>`;
+  resultDiv.innerHTML = html;
+  messages.appendChild(resultDiv);
+  messages.scrollTop = messages.scrollHeight;
 }
 
 async function sendToAI() {
@@ -92,7 +134,6 @@ async function sendToAI() {
   const query = input?.value.trim();
   if (!query || !messages) return;
 
-  // Thêm tin người dùng
   const userMsg = document.createElement("div");
   userMsg.className = "msg user";
   userMsg.textContent = query;
@@ -101,6 +142,18 @@ async function sendToAI() {
   input.value = "";
   messages.scrollTop = messages.scrollHeight;
 
+  // Kiểm tra lệnh tìm kiếm
+  const lowerQuery = query.toLowerCase();
+  if (lowerQuery.includes("tìm") || lowerQuery.includes("search") || lowerQuery.includes("xem")) {
+    const results = await searchWeb(query);
+    displaySearchResults(results, query);
+    chatHistory.push({ role: "user", content: query });
+    chatHistory.push({ role: "bot", content: "search_results" });
+    localStorage.setItem("aiChatHistory", JSON.stringify(chatHistory.slice(-50)));
+    return;
+  }
+
+  // Gọi AI
   try {
     const response = await fetch("/.netlify/functions/ai-proxy", {
       method: "POST",
@@ -109,16 +162,14 @@ async function sendToAI() {
     });
 
     const data = await response.json();
-    const botText = data.text || "Tôi không thể trả lời ngay lúc này.";
+    const botText = data.text || "Tôi không thể trả lời lúc này.";
 
     const botMsg = document.createElement("div");
     botMsg.className = "msg bot";
     botMsg.textContent = botText;
     messages.appendChild(botMsg);
-
     messages.scrollTop = messages.scrollHeight;
 
-    // Lưu vào lịch sử
     chatHistory.push({ role: "user", content: query });
     chatHistory.push({ role: "bot", content: botText });
     localStorage.setItem("aiChatHistory", JSON.stringify(chatHistory.slice(-50)));
@@ -127,83 +178,15 @@ async function sendToAI() {
     errorMsg.className = "msg bot";
     errorMsg.style.backgroundColor = "#e74c3c";
     errorMsg.style.color = "white";
-    errorMsg.textContent = t("toastAiError");
+    errorMsg.textContent = "Không thể kết nối AI.";
     messages.appendChild(errorMsg);
-    showToast(t("toastAiError"));
+    showToast("Lỗi AI");
   }
 }
 
-// === TÌM KIẾM ===
-function initSearchIndex() {
-  if (!window.FlexSearch) {
-    console.warn("FlexSearch không khả dụng");
-    return;
-  }
-
-  searchIndex = new FlexSearch({
-    encode: "advanced",
-    tokenize: "forward",
-    async: true
-  });
-
-  // Dữ liệu mẫu
-  const items = [
-    { id: 1, type: "Hướng dẫn", content: "Gmail cho phép dùng +từkhóa để tạo email ảo", ref: "Hướng dẫn cách dùng" },
-    { id: 2, type: "Tiền tố", content: "test shop news signup", ref: "test" },
-    { id: 3, type: "Tiền tố", content: "dangky reg register", ref: "dangky" }
-  ];
-
-  items.forEach(item => {
-    searchIndex.add(item.id, item.content);
-    searchableContent.push(item);
-  });
-}
-
-async function searchContent() {
-  const input = document.getElementById("siteSearch");
-  const resultsContainer = document.getElementById("searchResults");
-  const query = input?.value.trim();
-
-  if (!query || !resultsContainer || !searchIndex) {
-    resultsContainer?.classList.remove("show");
-    return;
-  }
-
-  try {
-    const results = await searchIndex.search(query);
-    if (results.length === 0) {
-      resultsContainer.innerHTML = '<div class="no-result">Không tìm thấy</div>';
-    } else {
-      let html = '';
-      results.slice(0, 10).forEach(id => {
-        const item = searchableContent.find(c => c.id == id);
-        if (item) {
-          html += `<div class="search-item" onclick="useSearchResult('${item.ref}')">
-                     <strong>${item.type}</strong>: ${item.ref}
-                   </div>`;
-        }
-      });
-      resultsContainer.innerHTML = html;
-    }
-    resultsContainer.classList.add("show");
-  } catch (err) {
-    resultsContainer.classList.remove("show");
-  }
-}
-
-function useSearchResult(text) {
-  const prefixInput = document.getElementById("prefix");
-  if (prefixInput) prefixInput.value = text.replace(/[^\w]/g, '').toLowerCase();
-  document.getElementById("searchResults")?.classList.remove("show");
-}
-
-document.getElementById("siteSearch")?.addEventListener("input", searchContent);
-
-// === GỢI Ý TIỀN TỐ ===
 async function suggestSmartPrefix() {
-  const contextOptions = ["đăng ký tài khoản", "test phần mềm", "nhận bản tin", "mua sắm online"];
-  const context = contextOptions[Math.floor(Math.random() * contextOptions.length)];
-  const prompt = `Gợi ý 1 tiền tố email ngắn cho: "${context}". Chỉ trả về 1 từ.`;
+  const context = ["đăng ký", "test", "mua sắm", "newsletter"][Math.floor(Math.random() * 4)];
+  const prompt = `Gợi ý 1 tiền tố email cho: "${context}". Chỉ trả về 1 từ.`;
 
   try {
     const response = await fetch("/.netlify/functions/ai-proxy", {
@@ -214,25 +197,17 @@ async function suggestSmartPrefix() {
 
     const data = await response.json();
     const suggestion = data.text.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-    if (suggestion && suggestion.length <= 20) {
+    if (suggestion) {
       document.getElementById("prefix").value = suggestion;
-      showToast(`💡 Gợi ý: "${suggestion}" (${context})`, 3000);
-    } else {
-      fallbackSuggestion();
+      showToast(`💡 Gợi ý: ${suggestion}`);
     }
   } catch (err) {
-    fallbackSuggestion();
+    const fallback = ["temp", "test", "shop", "news"][Math.floor(Math.random() * 4)];
+    document.getElementById("prefix").value = fallback;
+    showToast(`💡 Gợi ý (dự phòng): ${fallback}`);
   }
 }
 
-function fallbackSuggestion() {
-  const suggestions = ["temp", "test", "signup", "shop", "news"];
-  const suggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
-  document.getElementById("prefix").value = suggestion;
-  showToast(`💡 (Dự phòng) Gợi ý: ${suggestion}`, 2500);
-}
-
-// === TẠO EMAIL ===
 function generateEmails() {
   const baseEmail = document.getElementById("baseEmail")?.value.trim();
   const prefix = (document.getElementById("prefix")?.value.trim() || "temp").replace(/\s+/g, '');
@@ -275,7 +250,7 @@ function generateEmails() {
   }
 
   emailList.textContent = emails.join("\n");
-  qrList.innerHTML = `<h3>${currentLang === 'vi' ? 'Mã QR' : 'QR Codes'}</h3>`;
+  qrList.innerHTML = `<h3>Mã QR</h3>`;
   emails.forEach(email => {
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=mailto:${email}`;
     const item = document.createElement("div");
@@ -292,14 +267,11 @@ function generateEmails() {
   localStorage.setItem("baseEmail", baseEmail);
   localStorage.setItem("prefix", prefix);
   localStorage.setItem("count", count);
-
   showToast(t("generated").replace("%d", count), 2000);
 }
 
-// === SAO CHÉP ===
 function copyToClipboard() {
-  const emailList = document.getElementById("emailList");
-  const text = emailList?.textContent || "";
+  const text = document.getElementById("emailList").textContent;
   if (!text || text === "Kết quả sẽ hiển thị ở đây...") {
     showToast(t("toastNoCopy"));
     return;
@@ -312,51 +284,36 @@ function copyToClipboard() {
   });
 }
 
-// === KHỞI TẠO ===
 window.onload = function () {
-  try {
-    // Khôi phục dữ liệu
-    chatHistory = JSON.parse(localStorage.getItem("aiChatHistory")) || [];
-    currentLang = localStorage.getItem("lang") || "vi";
+  document.getElementById("baseEmail").value = localStorage.getItem("baseEmail") || "";
+  document.getElementById("prefix").value = localStorage.getItem("prefix") || "temp";
+  document.getElementById("count").value = localStorage.getItem("count") || "5";
 
-    // Khởi tạo tìm kiếm
-    if (typeof FlexSearch !== 'undefined') {
-      initSearchIndex();
-    }
+  updateUIWithLang();
+  loadChatHistory();
 
-    // Cập nhật giao diện
-    updateUIWithLang();
-    loadChatHistory();
+  document.getElementById("generateBtn")?.addEventListener("click", generateEmails);
+  document.getElementById("copyBtn")?.addEventListener("click", copyToClipboard);
 
-    // Gán sự kiện
-    document.getElementById("baseEmail").value = localStorage.getItem("baseEmail") || "";
-    document.getElementById("prefix").value = localStorage.getItem("prefix") || "temp";
-    document.getElementById("count").value = localStorage.getItem("count") || "5";
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
 
-    // Gắn nút
-    document.getElementById("generateBtn")?.addEventListener("click", generateEmails);
-    document.getElementById("copyBtn")?.addEventListener("click", copyToClipboard);
-    document.getElementById("toggleChat")?.addEventListener("click", () => {
-      toggleChat(true);
-    });
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById("installButton").style.display = "block";
+  });
 
-    // PWA
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("sw.js").catch(err => {
-        console.log("SW lỗi:", err);
+  document.getElementById("installButton")?.addEventListener("click", () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(() => {
+        deferredPrompt = null;
+        document.getElementById("installButton").style.display = "none";
       });
     }
-
-    window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      document.getElementById("installButton").style.display = "block";
-    });
-
-  } catch (err) {
-    console.error("Lỗi khởi tạo:", err);
-    alert("Có lỗi khi tải ứng dụng. Vui lòng làm mới trang.");
-  }
+  });
 };
 
 function loadChatHistory() {
@@ -373,10 +330,11 @@ function loadChatHistory() {
     messages.appendChild(welcome);
   } else {
     chatHistory.slice(-10).forEach(msg => {
+      if (msg.role === "bot" && msg.content === "search_results") return;
       const el = document.createElement("div");
       el.className = `msg ${msg.role}`;
       el.textContent = msg.content;
       messages.appendChild(el);
     });
   }
-      }
+}
