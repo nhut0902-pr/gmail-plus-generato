@@ -16,38 +16,11 @@
 
   <!-- CSS -->
   <link rel="stylesheet" href="style.css" />
-
-  <!-- FlexSearch - CDN ổn định + Fallback -->
-  <script>
-    // Fallback nếu FlexSearch lỗi
-    window.addEventListener('error', function(e) {
-      if (e.filename && e.filename.includes('flexsearch')) {
-        console.warn('FlexSearch tải thất bại. Tắt tìm kiếm.');
-        window.FlexSearch = class {
-          constructor() {}
-          add() {}
-          search() { return []; }
-        };
-      }
-    }, true);
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/flexsearch@0.7.38/dist/flexsearch.bundle.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <div class="container">
     <h1>📧 Tạo Email Ảo</h1>
     <p class="tagline">Dùng Gmail alias để quản lý đăng ký dễ dàng hơn</p>
-
-    <!-- Tìm kiếm (ẩn nếu lỗi) -->
-    <div class="search-section">
-      <label for="siteSearch">🔍 Tìm kiếm trên trang</label>
-      <input 
-        type="text" 
-        id="siteSearch" 
-        placeholder="Tìm email, chat, hướng dẫn..." 
-      />
-      <div id="searchResults" class="search-results"></div>
-    </div>
 
     <!-- Hướng dẫn -->
     <div class="help-section">
@@ -91,7 +64,7 @@
     </div>
   </div>
 
-  <!-- Chat với AI -->
+  <!-- Chat với AI (Sidebar) -->
   <div class="ai-chat">
     <button id="toggleChat" class="ai-toggle">🤖 Hỏi AI</button>
     <div id="chatBox" class="chat-box" style="display:none">
@@ -101,7 +74,7 @@
       </div>
       <div id="chatMessages" class="chat-messages"></div>
       <div class="chat-input">
-        <input type="text" id="userQuery" placeholder="Hỏi tôi về email..." />
+        <input type="text" id="userQuery" placeholder="Hỏi tôi hoặc gõ: Tìm cách tạo email ảo" />
         <button onclick="sendToAI()">Gửi</button>
       </div>
     </div>
